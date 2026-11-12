@@ -12,9 +12,9 @@ Administrar productos de moda, variantes por talla y color, existencias y movimi
 - Fase 6: frontend React integrado.
 - Fase 7: módulos de inventario integrados; CI de backend y frontend aprobada.
 - Fase 8: integración tecnológica; Backend CI con PostgreSQL 16 aprobada en PR #8.
-- Fase 9: pruebas y aseguramiento de calidad en desarrollo.
+- Fase 9: pruebas automatizadas implementadas; Backend CI y Frontend CI aprobadas, auditoría npm sin vulnerabilidades en PR #9.
 
-Las fases 1–7 están fusionadas en `main`. La Fase 8 está en el PR #8 y la Fase 9 se desarrolla sobre esa rama en un PR independiente.
+Las fases 1–7 están fusionadas en `main`. La Fase 8 está en el PR #8 y la Fase 9 se desarrolla sobre esa rama en un PR independiente. Ninguna de estas dos fases se ha fusionado todavía a `main`.
 
 Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-9/`.
 
