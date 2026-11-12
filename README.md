@@ -12,11 +12,12 @@ Administrar productos de moda, variantes por talla y color, existencias y movimi
 - Fase 4: primera implementación del backend FastAPI.
 - Fase 5: seguridad y autenticación inicial.
 - Fase 6: frontend e interfaz inicial en revisión.
+- Fase 7: módulos de inventario en revisión.
 
-Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-6/`.
+Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-7/`.
 
 ## Tecnologías
-- Frontend previsto: React + TypeScript + Vite.
+- Frontend: React + TypeScript + Vite.
 - Backend: Python + FastAPI.
 - Persistencia: SQLAlchemy + Alembic + PostgreSQL.
 - Seguridad: Argon2 para contraseñas y JWT para autenticación.
@@ -25,7 +26,10 @@ Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-6/`.
 ## Backend
 Consulta `backend/README.md` para instalación, configuración, roles y ejecución. El registro público solo crea cuentas STAFF. Las rutas de catálogo e inventario requieren autenticación y permisos según rol.
 
-## Frontend\nConsulta `frontend/README.md` para instalar y ejecutar la interfaz React.\n\n## Roadmap
+## Frontend
+Consulta `frontend/README.md` para instalar y ejecutar la interfaz React.
+
+## Roadmap
 1. Análisis y especificación.
 2. Arquitectura del software.
 3. Diseño de base de datos.
