@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.models import InventoryBalance,InventoryMovement,ProductVariant
 from app.schemas import MovementCreate
-def register_movement(db:Session,payload:MovementCreate,idempotency_key:str|None=None):
+def register_movement(db:Session,payload:MovementCreate,user_id,idempotency_key:str|None=None):
     if idempotency_key:
         previous=db.scalar(select(InventoryMovement).where(InventoryMovement.idempotency_key==idempotency_key))
         if previous:
@@ -20,7 +20,7 @@ def register_movement(db:Session,payload:MovementCreate,idempotency_key:str|None
         increase=payload.movement_type=="IN" or (payload.movement_type=="ADJUSTMENT" and payload.adjustment_direction=="INCREASE")
         after=before+payload.quantity if increase else before-payload.quantity
         if after<0: raise HTTPException(409,"Existencias insuficientes")
-        movement=InventoryMovement(variant_id=payload.variant_id,user_id=payload.user_id,supplier_id=payload.supplier_id,movement_type=payload.movement_type,adjustment_direction=payload.adjustment_direction,quantity=payload.quantity,stock_before=before,stock_after=after,reason=payload.reason.strip(),reference=payload.reference,idempotency_key=idempotency_key)
+        movement=InventoryMovement(variant_id=payload.variant_id,user_id=user_id,supplier_id=payload.supplier_id,movement_type=payload.movement_type,adjustment_direction=payload.adjustment_direction,quantity=payload.quantity,stock_before=before,stock_after=after,reason=payload.reason.strip(),reference=payload.reference,idempotency_key=idempotency_key)
         balance.quantity=after; db.add(movement); db.commit(); db.refresh(movement); return movement
     except IntegrityError:
         db.rollback()
