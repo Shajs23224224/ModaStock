@@ -6,16 +6,23 @@ Sistema web de gestión de inventario especializado en tiendas y marcas de ropa.
 Administrar productos de moda, variantes por talla y color, existencias y movimientos de inventario con trazabilidad y reglas de negocio consistentes.
 
 ## Estado del proyecto
-La documentación de análisis, arquitectura y diseño de datos se encuentra en `docs/fase-1/`, `docs/fase-2/` y `docs/fase-3/`. La primera implementación del backend está en `backend/` y se describe en `docs/fase-4/`.
+- Fase 1: análisis y especificación.
+- Fase 2: arquitectura del software.
+- Fase 3: diseño de base de datos.
+- Fase 4: primera implementación del backend FastAPI.
+- Fase 5: seguridad y autenticación inicial en revisión.
+
+Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-5/`.
 
 ## Tecnologías
 - Frontend previsto: React + TypeScript + Vite.
 - Backend: Python + FastAPI.
 - Persistencia: SQLAlchemy + Alembic + PostgreSQL.
+- Seguridad: Argon2 para contraseñas y JWT para autenticación.
 - Pruebas: Pytest.
 
 ## Backend
-Consulta `backend/README.md` para instalación, configuración y ejecución. La API incluye endpoints iniciales de catálogo y consulta de existencias. La escritura de movimientos permanece deshabilitada hasta implementar autenticación y autorización en la Fase 5.
+Consulta `backend/README.md` para instalación, configuración, roles y ejecución. El registro público solo crea cuentas STAFF. Las rutas de catálogo e inventario requieren autenticación y permisos según rol.
 
 ## Roadmap
 1. Análisis y especificación.
