@@ -11,18 +11,19 @@ Administrar productos de moda, variantes por talla y color, existencias y movimi
 - Fase 5: autenticación y autorización inicial integradas.
 - Fase 6: frontend React integrado.
 - Fase 7: módulos de inventario integrados; CI de backend y frontend aprobada.
-- Fase 8: integración tecnológica en revisión; readiness de PostgreSQL y CI con servicio PostgreSQL añadidos.
+- Fase 8: integración tecnológica; Backend CI con PostgreSQL 16 aprobada en PR #8.
+- Fase 9: pruebas y aseguramiento de calidad en desarrollo.
 
-Las fases 1–7 están fusionadas en `main`. La Fase 8 se desarrolla en una rama independiente y aún no está integrada en `main`.
+Las fases 1–7 están fusionadas en `main`. La Fase 8 está en el PR #8 y la Fase 9 se desarrolla sobre esa rama en un PR independiente.
 
-Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-8/`.
+Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-9/`.
 
 ## Tecnologías
 - Frontend: React + TypeScript + Vite.
 - Backend: Python + FastAPI.
 - Persistencia: SQLAlchemy + Alembic + PostgreSQL.
 - Seguridad: Argon2 para contraseñas y JWT para autenticación.
-- Pruebas: Pytest y GitHub Actions.
+- Pruebas: Pytest, Vitest y GitHub Actions.
 
 ## Backend
 Consulta `backend/README.md` para instalación, configuración, roles y ejecución. El registro público solo crea cuentas STAFF. Las rutas de catálogo e inventario requieren autenticación y permisos según rol.
