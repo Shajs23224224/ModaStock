@@ -65,15 +65,13 @@ def list_sizes(db: Session = Depends(get_db), _user: User = Depends(get_current_
 def list_colors(db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
     return db.scalars(select(Color).where(Color.is_active.is_(True)).order_by(Color.name)).all()
 
-@router.get("/variants", response_model=list[VariantInventoryRead])
-def list_variants(
-    q: str | None = Query(default=None, max_length=100),
-    product_id: uuid.UUID | None = None,
-    low_stock_only: bool = False,
-    limit: int = Query(100, ge=1, le=200),
-    offset: int = Query(0, ge=0),
-    db: Session = Depends(get_db),
-    _user: User = Depends(get_current_user),
+def _query_variants(
+    db: Session,
+    q: str | None,
+    product_id: uuid.UUID | None,
+    low_stock_only: bool,
+    limit: int,
+    offset: int,
 ):
     stmt = (
         select(ProductVariant, Product, Size, Color, InventoryBalance)
@@ -85,7 +83,7 @@ def list_variants(
     )
     if product_id:
         stmt = stmt.where(ProductVariant.product_id == product_id)
-    if q:
+    if q and q.strip():
         term = f"%{q.strip()}%"
         stmt = stmt.where(or_(ProductVariant.sku.ilike(term), Product.name.ilike(term), Product.model_reference.ilike(term), Size.name.ilike(term), Color.name.ilike(term)))
     if low_stock_only:
@@ -101,6 +99,19 @@ def list_variants(
         )
         for v, p, s, c, b in rows
     ]
+
+
+@router.get("/variants", response_model=list[VariantInventoryRead])
+def list_variants(
+    q: str | None = Query(default=None, max_length=100),
+    product_id: uuid.UUID | None = None,
+    low_stock_only: bool = False,
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    return _query_variants(db, q, product_id, low_stock_only, limit, offset)
 
 @router.get("/variants/{variant_id}/stock", response_model=StockRead)
 def get_stock(variant_id: uuid.UUID, db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
@@ -120,8 +131,15 @@ def update_minimum_stock(variant_id: uuid.UUID, payload: MinimumStockUpdate, db:
     return StockRead(variant_id=variant_id, quantity=balance.quantity, minimum_quantity=balance.minimum_quantity, low_stock=balance.quantity <= balance.minimum_quantity)
 
 @router.get("/inventory/stock", response_model=list[VariantInventoryRead])
-def list_stock(low_stock_only: bool = False, q: str | None = Query(default=None, max_length=100), limit: int = Query(100, ge=1, le=200), offset: int = Query(0, ge=0), db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
-    return list_variants(q=q, low_stock_only=low_stock_only, limit=limit, offset=offset, db=db, _user=_user)
+def list_stock(
+    low_stock_only: bool = False,
+    q: str | None = Query(default=None, max_length=100),
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    return _query_variants(db, q, None, low_stock_only, limit, offset)
 
 @router.get("/inventory/movements", response_model=list[MovementRead])
 def list_movements(
