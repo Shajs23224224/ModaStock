@@ -1,7 +1,24 @@
 import uuid
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, EmailStr
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    full_name: str = Field(min_length=2, max_length=150)
+    password: str = Field(min_length=12, max_length=128)
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+class TokenRead(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+class UserRead(BaseModel):
+    id: uuid.UUID
+    email: EmailStr
+    full_name: str
+    role: str
+    is_active: bool
 class ProductCreate(BaseModel):
     name: str=Field(min_length=1,max_length=150)
     model_reference: str=Field(min_length=1,max_length=80)
@@ -41,7 +58,6 @@ class MovementCreate(BaseModel):
     movement_type: Literal["IN","OUT","ADJUSTMENT"]
     quantity: int=Field(gt=0)
     reason: str=Field(min_length=1,max_length=250)
-    user_id: uuid.UUID
     supplier_id: uuid.UUID|None=None
     adjustment_direction: Literal["INCREASE","DECREASE"]|None=None
     reference: str|None=Field(default=None,max_length=100)
