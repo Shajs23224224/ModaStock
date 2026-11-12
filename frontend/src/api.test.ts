@@ -59,11 +59,10 @@ describe('ModaStock API client', () => {
       status: 409,
       headers: { 'Content-Type': 'application/json' },
     }))
-    await expect(api.products('session-token')).rejects.toMatchObject({
-      name: 'ApiError',
-      message: 'Existencias insuficientes',
-      status: 409,
-    })
+    const error = await api.products('session-token').catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error).toMatchObject({ status: 409 })
+    expect((error as Error).message).toBe('Existencias insuficientes')
   })
 
   it('normalizes network failures into a connection ApiError', async () => {
