@@ -19,7 +19,7 @@ CREATE TABLE users (
     full_name varchar(150) NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX uq_users_email_lower ON users (lower(email));
