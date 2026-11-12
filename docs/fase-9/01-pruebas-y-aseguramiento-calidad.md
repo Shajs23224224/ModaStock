@@ -9,6 +9,7 @@ Verificar los contratos principales de ModaStock en backend, persistencia Postgr
 3. **Integración PostgreSQL 16:** readiness y concurrencia real de dos ventas simultáneas sobre el mismo saldo.
 4. **Unitarias de frontend:** serialización JSON, cabecera Bearer, Idempotency-Key y normalización de errores HTTP/red.
 5. **Build frontend:** TypeScript estricto y compilación de Vite.
+6. **Auditoría de dependencias:** reporte de vulnerabilidades npm en cada ejecución de CI.
 
 ## Casos críticos cubiertos
 - Registro público no permite autoasignación de ADMIN; el rol creado es STAFF.
@@ -20,6 +21,14 @@ Verificar los contratos principales de ModaStock en backend, persistencia Postgr
 - Reutilizar una clave idempotente con una operación distinta devuelve HTTP 409.
 - Los ajustes de aumento y disminución actualizan el saldo y mantienen el antes/después.
 - Dos salidas concurrentes de 7 unidades contra un saldo inicial de 10: solo una puede confirmarse; la otra debe recibir conflicto y el saldo final debe ser 3.
+
+## Resultado de CI verificado
+En el commit `641e3df9002605c7bc5b437eae77a92f099218b3`:
+- Backend CI: exitoso; Pytest ejecutado con PostgreSQL 16 como servicio.
+- Frontend CI: exitoso; 5 pruebas Vitest aprobadas y compilación TypeScript/Vite completada.
+- `npm audit`: 0 vulnerabilidades reportadas después de actualizar Vitest a 4.1.12.
+
+La auditoría inicial había detectado 6 vulnerabilidades transitivas/directas (incluidas 2 críticas). La actualización de Vitest a 4.1.12 resolvió los hallazgos reportados por npm audit en la ejecución posterior.
 
 ## Ejecución local
 Backend:
@@ -40,7 +49,7 @@ npm run build
 
 ## CI
 - Backend CI usa SQLite para pruebas aisladas y PostgreSQL 16 como servicio efímero para integración.
-- Frontend CI ejecuta Vitest, comprobación de tipos y build.
+- Frontend CI ejecuta Vitest, TypeScript, build y auditoría npm.
 - Los checks deben estar en verde en el PR antes de solicitar integración.
 
 ## Alcance y limitaciones
