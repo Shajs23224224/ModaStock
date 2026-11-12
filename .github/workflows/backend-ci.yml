@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - "feature/fase-5-seguridad-autenticacion"
+      - "feature/fase-7-modulos-inventario"
     paths:
       - "backend/**"
       - ".github/workflows/backend-ci.yml"
