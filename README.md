@@ -6,13 +6,13 @@ Sistema web de gestión de inventario especializado en tiendas y marcas de ropa.
 Administrar productos de moda, variantes por talla y color, existencias y movimientos de inventario con trazabilidad y reglas de negocio consistentes.
 
 ## Estado del proyecto
-- Fase 1: análisis y especificación.
-- Fase 2: arquitectura del software.
-- Fase 3: diseño de base de datos.
-- Fase 4: primera implementación del backend FastAPI.
-- Fase 5: seguridad y autenticación inicial.
-- Fase 6: frontend e interfaz inicial en revisión.
-- Fase 7: módulos de inventario en revisión.
+- Fases 1–3: análisis, arquitectura y diseño de datos integrados documentalmente.
+- Fase 4: backend FastAPI inicial integrado.
+- Fase 5: autenticación y autorización inicial integradas.
+- Fase 6: frontend React integrado.
+- Fase 7: módulos de inventario integrados; CI de backend y frontend aprobada.
+
+Las fases 1–7 están fusionadas en `main`. La validación de concurrencia PostgreSQL, migraciones y despliegue siguen pendientes.
 
 Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-7/`.
 
