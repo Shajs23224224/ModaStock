@@ -5,10 +5,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 RUN groupadd --system app && useradd --system --gid app --create-home app
 COPY pyproject.toml ./
-RUN python -m pip install --no-cache-dir .
 COPY app ./app
 COPY migrations ./migrations
 COPY alembic.ini ./
+RUN python -m pip install --no-cache-dir .
 USER app
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
