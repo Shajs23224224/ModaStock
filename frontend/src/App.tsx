@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { Activity, ArrowLeftRight, ArrowUpRight, Bell, Boxes, ChartNoAxesCombined, Check, ChevronDown, CircleHelp, LayoutDashboard, LogOut, Menu, Package, Plus, Search, Settings, ShieldCheck, Shirt, Sparkles, X } from 'lucide-react'
 import { api, ApiError, type Product, type User } from './api'
 
@@ -48,7 +48,7 @@ function App() {
   }, [token, loadProducts, logout])
 
   const filteredProducts = useMemo(() => products.filter(p => `${p.name} ${p.model_reference}`.toLowerCase().includes(search.toLowerCase())), [products, search])
-  const doAuth = async (event: React.FormEvent) => {
+  const doAuth = async (event: FormEvent) => {
     event.preventDefault(); setAuthError(''); setAuthLoading(true)
     try {
       if (registerMode) await api.register(fullName, email, password)
@@ -91,6 +91,6 @@ function App() {
   {page==='settings' && <section className="panel settings-panel"><div className="panel-head"><div><h3>Cuenta y seguridad</h3><p>Información de tu sesión actual</p></div><ShieldCheck size={21}/></div><div className="setting-line"><span>Nombre</span><strong>{user.full_name}</strong></div><div className="setting-line"><span>Correo</span><strong>{user.email}</strong></div><div className="setting-line"><span>Rol</span><strong className="role-tag">{user.role}</strong></div><div className="setting-line"><span>Estado</span><strong className="active-tag">Activo</strong></div><button className="btn outline" onClick={logout}><LogOut size={16}/> Cerrar sesión</button></section>}
   <footer className="footer"><span>© 2026 ModaStock</span><span>Hecho para gestionar mejor.</span></footer></main></div></div>{showProductForm && <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShowProductForm(false)}}><form className="modal" onSubmit={saveProduct}><div className="modal-head"><div><span className="eyebrow">CATÁLOGO</span><h2>Nuevo producto</h2></div><button type="button" className="icon-button" onClick={()=>setShowProductForm(false)}><X size={19}/></button></div><label>Nombre del producto<input required maxLength={150} value={productName} onChange={e=>setProductName(e.target.value)} placeholder="Ej. Camiseta básica oversize"/></label><label>Referencia del modelo<input required maxLength={80} value={productRef} onChange={e=>setProductRef(e.target.value)} placeholder="Ej. CAM-OV-001"/></label><label>Descripción <span className="optional">Opcional</span><textarea rows={3} value={productDescription} onChange={e=>setProductDescription(e.target.value)} placeholder="Describe brevemente el producto…"/></label><div className="modal-actions"><button type="button" className="btn outline" onClick={()=>setShowProductForm(false)}>Cancelar</button><button className="btn primary" disabled={saving}>{saving?'Guardando…':'Guardar producto'}<Check size={16}/></button></div></form></div>}</div>
 }
-function Stat({icon,label,value,detail}:{icon:React.ReactNode;label:string;value:string;detail:string}) { return <div className="stat-card"><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{detail}</small></div> }
+function Stat({icon,label,value,detail}:{icon:ReactNode;label:string;value:string;detail:string}) { return <div className="stat-card"><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{detail}</small></div> }
 function ProductTable({products,loading}:{products:Product[];loading:boolean}) { return <div className="table-wrap"><table><thead><tr><th>PRODUCTO</th><th>REFERENCIA</th><th>ESTADO</th><th>FECHA DE REGISTRO</th></tr></thead><tbody>{loading?<tr><td colSpan={4} className="table-empty">Cargando catálogo…</td></tr>:products.length===0?<tr><td colSpan={4} className="table-empty">No hay productos para mostrar.</td></tr>:products.map(p=><tr key={p.id}><td><div className="product-cell"><div className="product-thumb"><Shirt size={18}/></div><strong>{p.name}</strong></div></td><td><span className="reference">{p.model_reference}</span></td><td><span className={`status-tag ${p.is_active?'active':'inactive'}`}><i/>{p.is_active?'Activo':'Inactivo'}</span></td><td>{new Date(p.created_at).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'})}</td></tr>)}</tbody></table></div> }
 export default App
