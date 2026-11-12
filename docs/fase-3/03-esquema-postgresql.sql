@@ -20,8 +20,9 @@ CREATE TABLE users (
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT uq_users_email_lower UNIQUE (lower(email))
 );
+
+CREATE UNIQUE INDEX uq_users_email_lower ON users (lower(email));
 
 CREATE TABLE categories (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -112,6 +113,7 @@ CREATE TABLE inventory_movements (
     CONSTRAINT ck_adjustment_direction
         CHECK (
             (movement_type = 'ADJUSTMENT'
+                AND adjustment_direction IS NOT NULL
                 AND adjustment_direction IN ('INCREASE', 'DECREASE'))
             OR
             (movement_type IN ('IN', 'OUT')
