@@ -186,6 +186,28 @@ def test_movement_route_requires_authentication(client):
     assert client.post("/api/v1/inventory/movements", json={}).status_code == 401
 
 
+def test_authenticated_staff_can_register_idempotent_movement_through_api(client, db, users):
+    variant, balance = create_variant(db, "API-001", quantity=4)
+    payload = {
+        "variant_id": str(variant.id),
+        "movement_type": "IN",
+        "quantity": 3,
+        "reason": "Recepción de mercancía",
+    }
+    headers = {
+        **users["staff_headers"],
+        "Idempotency-Key": "api-movement-001",
+    }
+    first = client.post("/api/v1/inventory/movements", json=payload, headers=headers)
+    retry = client.post("/api/v1/inventory/movements", json=payload, headers=headers)
+
+    assert first.status_code == 201
+    assert retry.status_code == 201
+    assert retry.json()["id"] == first.json()["id"]
+    db.refresh(balance)
+    assert balance.quantity == 7
+
+
 def test_movement_service_prevents_negative_stock_and_rolls_back(db, users):
     variant, balance = create_variant(db, "002", quantity=8)
     incoming = MovementCreate(
