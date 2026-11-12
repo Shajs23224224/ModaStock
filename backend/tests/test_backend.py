@@ -7,14 +7,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.auth import get_current_user
 from app.db_base import Base
 from app.db_session import get_db
 from app.inventory import register_movement
 from app.main import app
 from app.models import Color, InventoryBalance, Product, ProductVariant, Role, Size, User
 from app.schemas import MovementCreate
-from app.security import create_access_token
+from app.security import create_access_token, verify_password
 
 
 @pytest.fixture()
@@ -71,10 +70,71 @@ def client(db):
     app.dependency_overrides.clear()
 
 
+def create_variant(db, suffix="001", quantity=0):
+    product = Product(name=f"Camisa {suffix}", model_reference=f"CAM-{suffix}")
+    size = Size(name=f"M-{suffix}")
+    color = Color(name=f"Azul-{suffix}", hex_code="#0000FF")
+    db.add_all([product, size, color])
+    db.flush()
+    variant = ProductVariant(
+        product_id=product.id,
+        size_id=size.id,
+        color_id=color.id,
+        sku=f"CAM-{suffix}-M-AZU",
+    )
+    db.add(variant)
+    db.flush()
+    balance = InventoryBalance(variant_id=variant.id, quantity=quantity)
+    db.add(balance)
+    db.commit()
+    return variant, balance
+
+
 def test_health(client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_registration_assigns_staff_and_login_returns_usable_token(client, db, users):
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Usuario de prueba",
+            "email": "new-user@example.com",
+            "password": "password-test-2026",
+        },
+    )
+    assert response.status_code == 201
+    created = db.query(User).filter_by(email="new-user@example.com").one()
+    assert db.get(Role, created.role_id).name == "STAFF"
+    assert verify_password("password-test-2026", created.password_hash)
+
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": "new-user@example.com", "password": "password-test-2026"},
+    )
+    assert login.status_code == 200
+    assert login.json()["token_type"] == "bearer"
+    profile = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {login.json()['access_token']}"},
+    )
+    assert profile.status_code == 200
+    assert profile.json()["role"] == "STAFF"
+
+
+def test_invalid_credentials_and_invalid_token_are_rejected(client):
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": "missing@example.com", "password": "wrong-password"},
+    )
+    assert login.status_code == 401
+    profile = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": "Bearer not-a-valid-token"},
+    )
+    assert profile.status_code == 401
 
 
 def test_products_require_auth_and_reject_duplicate_reference(client, users):
@@ -126,37 +186,13 @@ def test_movement_route_requires_authentication(client):
     assert client.post("/api/v1/inventory/movements", json={}).status_code == 401
 
 
-def test_movement_service_and_rollback(db, users):
-    user = users["staff"]
-    product = Product(name="Camisa", model_reference="CAM-02")
-    size = Size(name="L")
-    color = Color(name="Azul", hex_code="#0000FF")
-    db.add_all([product, size, color])
-    db.flush()
-    variant = ProductVariant(
-        product_id=product.id,
-        size_id=size.id,
-        color_id=color.id,
-        sku="CAM-L-AZU",
-    )
-    db.add(variant)
-    db.flush()
-    balance = InventoryBalance(variant_id=variant.id, quantity=0)
-    db.add(balance)
-    db.commit()
-
+def test_movement_service_prevents_negative_stock_and_rolls_back(db, users):
+    variant, balance = create_variant(db, "002", quantity=8)
     incoming = MovementCreate(
-        variant_id=variant.id, movement_type="IN", quantity=8, reason="Compra"
-    )
-    first = register_movement(db, incoming, user.id, "in-001")
-    outgoing = MovementCreate(
         variant_id=variant.id, movement_type="OUT", quantity=3, reason="Venta"
     )
-    second = register_movement(db, outgoing, user.id, "out-001")
-
-    assert (first.stock_before, first.stock_after) == (0, 8)
-    assert (second.stock_before, second.stock_after) == (8, 5)
-    assert db.get(InventoryBalance, balance.id).quantity == 5
+    movement = register_movement(db, incoming, users["staff"].id, "out-001")
+    assert (movement.stock_before, movement.stock_after) == (8, 5)
 
     with pytest.raises(HTTPException) as error:
         register_movement(
@@ -167,31 +203,78 @@ def test_movement_service_and_rollback(db, users):
                 quantity=99,
                 reason="Venta",
             ),
-            user.id,
+            users["staff"].id,
         )
     assert error.value.status_code == 409
-    assert db.get(InventoryBalance, balance.id).quantity == 5
+    db.refresh(balance)
+    assert balance.quantity == 5
 
 
 def test_idempotent_retry_returns_original_movement(db, users):
-    user = users["staff"]
-    product = Product(name="Falda", model_reference="FAL-01")
-    size = Size(name="S")
-    color = Color(name="Rojo", hex_code="#FF0000")
-    db.add_all([product, size, color])
-    db.flush()
-    variant = ProductVariant(
-        product_id=product.id, size_id=size.id, color_id=color.id, sku="FAL-S-ROJ"
-    )
-    db.add(variant)
-    db.flush()
-    db.add(InventoryBalance(variant_id=variant.id, quantity=0))
-    db.commit()
-
+    variant, balance = create_variant(db, "003")
     payload = MovementCreate(
         variant_id=variant.id, movement_type="IN", quantity=5, reason="Compra"
     )
-    first = register_movement(db, payload, user.id, "retry-001")
-    retry = register_movement(db, payload, user.id, "retry-001")
+    first = register_movement(db, payload, users["staff"].id, "retry-001")
+    retry = register_movement(db, payload, users["staff"].id, "retry-001")
     assert retry.id == first.id
-    assert db.query(InventoryBalance).filter_by(variant_id=variant.id).one().quantity == 5
+    db.refresh(balance)
+    assert balance.quantity == 5
+
+
+def test_idempotency_key_cannot_be_reused_for_a_different_operation(db, users):
+    variant, balance = create_variant(db, "004")
+    original = MovementCreate(
+        variant_id=variant.id, movement_type="IN", quantity=5, reason="Compra"
+    )
+    register_movement(db, original, users["staff"].id, "same-key")
+    changed = MovementCreate(
+        variant_id=variant.id, movement_type="IN", quantity=6, reason="Compra"
+    )
+    with pytest.raises(HTTPException) as error:
+        register_movement(db, changed, users["staff"].id, "same-key")
+    assert error.value.status_code == 409
+    db.refresh(balance)
+    assert balance.quantity == 5
+
+
+def test_adjustment_increase_and_decrease_preserve_stock_ledger(db, users):
+    variant, balance = create_variant(db, "005", quantity=10)
+    increase = register_movement(
+        db,
+        MovementCreate(
+            variant_id=variant.id,
+            movement_type="ADJUSTMENT",
+            adjustment_direction="INCREASE",
+            quantity=2,
+            reason="Conteo físico",
+        ),
+        users["staff"].id,
+    )
+    decrease = register_movement(
+        db,
+        MovementCreate(
+            variant_id=variant.id,
+            movement_type="ADJUSTMENT",
+            adjustment_direction="DECREASE",
+            quantity=3,
+            reason="Corrección de conteo",
+        ),
+        users["staff"].id,
+    )
+    assert (increase.stock_before, increase.stock_after) == (10, 12)
+    assert (decrease.stock_before, decrease.stock_after) == (12, 9)
+    db.refresh(balance)
+    assert balance.quantity == 9
+
+
+def test_minimum_stock_update_requires_manager_and_rejects_negative(client, db, users):
+    variant, _ = create_variant(db, "006")
+    endpoint = f"/api/v1/variants/{variant.id}/minimum-stock"
+    denied = client.patch(endpoint, json={"minimum_quantity": 4}, headers=users["staff_headers"])
+    assert denied.status_code == 403
+    invalid = client.patch(endpoint, json={"minimum_quantity": -1}, headers=users["admin_headers"])
+    assert invalid.status_code == 422
+    updated = client.patch(endpoint, json={"minimum_quantity": 4}, headers=users["admin_headers"])
+    assert updated.status_code == 200
+    assert updated.json()["minimum_quantity"] == 4
