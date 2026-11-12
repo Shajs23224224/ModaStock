@@ -7,13 +7,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "ModaStock API"
     api_v1_prefix: str = "/api/v1"
-    environment: str = "development"
+    environment: str = Field(default="development", validation_alias="APP_ENV")
     database_url: str = "postgresql+psycopg://modastock:change-me@localhost:5432/modastock"
     cors_origins: str = "http://localhost:5173"
     jwt_secret_key: str = "DEV-ONLY-CHANGE-THIS-SECRET-KEY-32-CHARS"
     access_token_expire_minutes: int = Field(default=30, ge=1, le=1440)
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+        populate_by_name=True,
+    )
 
     @model_validator(mode="after")
     def validate_runtime_security(self):
