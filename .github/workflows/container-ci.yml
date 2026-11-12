@@ -33,4 +33,4 @@ jobs:
       - name: Validate Compose configuration
         run: docker compose config --quiet
       - name: Build application images
-        run: docker compose build --pull
+        run: docker compose --profile tools build --pull
