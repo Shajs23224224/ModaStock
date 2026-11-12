@@ -42,7 +42,7 @@ openssl rand -base64 36
 openssl rand -hex 32
 ```
 
-Si el primer resultado contiene caracteres no URL-safe, conviértelo a una cadena URL-safe antes de usarlo como contraseña de PostgreSQL.
+El formato hexadecimal de ambos comandos usa únicamente caracteres URL-safe y evita problemas al construir DATABASE_URL.
 
 ## 5. Construcción e inicio controlado
 
