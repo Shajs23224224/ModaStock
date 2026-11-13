@@ -34,3 +34,12 @@ jobs:
         run: docker compose config --quiet
       - name: Build application images
         run: docker compose --profile tools build --pull
+      - name: Start ephemeral PostgreSQL
+        run: docker compose up -d db
+      - name: Validate Alembic upgrade
+        run: docker compose run --rm migrate
+      - name: Validate Alembic downgrade
+        run: docker compose run --rm migrate alembic downgrade base
+      - name: Stop and remove ephemeral stack
+        if: always()
+        run: docker compose down -v
