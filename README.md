@@ -16,7 +16,10 @@ Administrar productos de moda, variantes por talla y color, existencias y movimi
 
 Las fases 1–7 están fusionadas en `main`. La Fase 8 está en el PR #8; la Fase 9 se desarrolla sobre la rama de la Fase 8 y la Fase 10 sobre la rama de la Fase 9. Los PR #8, #9 y #10 deben revisarse e integrarse en orden. Ninguno de estos cambios se ha desplegado ni aplicado a una base persistente.
 
-Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-10/`.\n\n## Ejecución con Docker\nConsulta `docs/fase-10/01-despliegue-y-operacion.md`. La plantilla Compose requiere copiar `.env.example` a `.env`, configurar secretos, construir imágenes, ejecutar las migraciones de forma explícita y luego iniciar API/frontend. No se ejecutan migraciones automáticamente al arrancar.
+Consulta la documentación por fase en `docs/fase-1/` a `docs/fase-10/`.
+
+## Ejecución con Docker
+Consulta `docs/fase-10/01-despliegue-y-operacion.md`. La plantilla Compose requiere copiar `.env.example` a `.env`, configurar secretos, construir imágenes, ejecutar las migraciones de forma explícita y luego iniciar API/frontend. No se ejecutan migraciones automáticamente al arrancar.
 
 ## Tecnologías
 - Frontend: React + TypeScript + Vite.
