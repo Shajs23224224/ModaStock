@@ -8,13 +8,14 @@ on:
     branches:
       - "feature/fase-6-frontend-interfaz"
       - "feature/fase-7-modulos-inventario"
+      - "feature/fase-9-pruebas-aseguramiento-calidad"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-ci.yml"
 permissions:
   contents: read
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,5 +27,11 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+      - name: Report dependency audit findings
+        run: |
+          npm audit --json > /tmp/npm-audit.json || true
+          node -e 'const r=JSON.parse(require("fs").readFileSync("/tmp/npm-audit.json","utf8")); console.log("Dependency audit summary:", JSON.stringify(r.metadata?.vulnerabilities ?? {})); for (const [name, item] of Object.entries(r.vulnerabilities ?? {})) console.log(name + ": severity=" + item.severity + "; direct=" + item.isDirect + "; range=" + item.range + "; fixAvailable=" + JSON.stringify(item.fixAvailable))'
+      - name: Run frontend unit tests
+        run: npm run test -- --run
       - name: Type-check and build
         run: npm run build
