@@ -8,7 +8,7 @@ Preparar ModaStock para ejecutarse de forma reproducible en contenedores, con Po
 
 - **db:** PostgreSQL 16, con volumen Docker `postgres_data` y healthcheck `pg_isready`.
 - **api:** FastAPI + Uvicorn, imagen basada en Python 3.12. Ejecuta como usuario no privilegiado y expone internamente el puerto 8000.
-- **frontend:** build de React/Vite con Node 20 y publicación de archivos estáticos mediante Nginx.
+- **frontend:** build de React/Vite con Node 24 y publicación de archivos estáticos mediante Nginx.
 - **proxy:** Nginx sirve la SPA y reenvía `/api/*` y `/health/*` al servicio API dentro de la red privada de Compose.
 - **migrate:** servicio de ejecución puntual para `alembic upgrade head`, habilitado bajo el perfil `tools`. Las migraciones no se ejecutan automáticamente al iniciar la API.
 
@@ -38,18 +38,18 @@ Usa caracteres URL-safe para `POSTGRES_PASSWORD` porque Compose construye `DATAB
 Para generar valores localmente puedes usar un generador criptográfico del sistema, por ejemplo:
 
 ```bash
-openssl rand -base64 36
-openssl rand -hex 32
+openssl rand -hex 32  # POSTGRES_PASSWORD
+openssl rand -hex 32  # JWT_SECRET_KEY
 ```
 
-El formato hexadecimal de ambos comandos usa únicamente caracteres URL-safe y evita problemas al construir DATABASE_URL.
+El formato hexadecimal usa únicamente caracteres URL-safe y evita problemas al construir DATABASE_URL.
 
 ## 5. Construcción e inicio controlado
 
-Primero construye las imágenes:
+Primero construye las imágenes, incluyendo el servicio puntual de migraciones:
 
 ```bash
-docker compose build api migrate frontend
+docker compose --profile tools build api migrate frontend
 ```
 
 Inicia PostgreSQL y espera a que esté saludable:
@@ -105,6 +105,8 @@ docker compose build --pull api migrate frontend
 
 ## 7. Migraciones, actualización y reversión
 
+El repositorio incluye una revisión inicial Alembic (`20261113_0001`) que crea las once tablas del modelo actual. En instalaciones nuevas, `alembic upgrade head` crea el esquema y registra la revisión. Antes de usar una base existente, realiza una evaluación y respaldo: no marques manualmente la revisión como aplicada ni ejecutes esta migración sobre tablas ya creadas sin un procedimiento de adopción probado.
+
 1. Realiza una copia de seguridad antes de cualquier cambio de esquema.
 2. Revisa el diff de código y las revisiones Alembic incluidas en la versión.
 3. Construye la imagen `migrate` de la misma versión que se va a desplegar.
@@ -152,7 +154,8 @@ La restauración con `--clean` elimina objetos existentes que estén incluidos e
 
 El workflow `Container CI`:
 - valida el archivo Compose con `docker compose config --quiet`;
-- construye las imágenes de API y frontend;
+- construye las imágenes de API, frontend y migraciones;
+- inicia PostgreSQL efímero y valida `alembic upgrade head` seguido de `alembic downgrade base`;
 - no publica imágenes en un registry y no despliega.
 
 Los workflows de backend y frontend siguen siendo responsables de pruebas unitarias, integración PostgreSQL, TypeScript y build. La construcción de imágenes no sustituye pruebas E2E ni una validación de despliegue en un entorno de staging.
