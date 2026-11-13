@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - "feature/fase-10-despliegue-documentacion"
+      - "main"
     paths:
       - "backend/**"
       - "frontend/**"
