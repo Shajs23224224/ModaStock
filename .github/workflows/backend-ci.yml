@@ -8,7 +8,7 @@ on:
     branches:
       - "feature/fase-5-seguridad-autenticacion"
       - "feature/fase-7-modulos-inventario"
-      - "feature/fase-8-integracion-tecnologica"
+      - "feature/fase-8-integracion-tecnologica"\n      - "feature/fase-9-pruebas-aseguramiento-calidad"\n      - "feature/fase-10-despliegue-documentacion"\n      - "main"
     paths:
       - "backend/**"
       - ".github/workflows/backend-ci.yml"
