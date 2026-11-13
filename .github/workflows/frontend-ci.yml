@@ -8,7 +8,9 @@ on:
     branches:
       - "feature/fase-6-frontend-interfaz"
       - "feature/fase-7-modulos-inventario"
-      - "feature/fase-9-pruebas-aseguramiento-calidad"\n      - "feature/fase-10-despliegue-documentacion"\n      - "main"
+      - "feature/fase-9-pruebas-aseguramiento-calidad"
+      - "feature/fase-10-despliegue-documentacion"
+      - "main"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-ci.yml"
