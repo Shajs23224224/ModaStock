@@ -9,6 +9,8 @@ on:
       - "feature/fase-6-frontend-interfaz"
       - "feature/fase-7-modulos-inventario"
       - "feature/fase-9-pruebas-aseguramiento-calidad"
+      - "feature/fase-10-despliegue-documentacion"
+      - "main"
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-ci.yml"
@@ -24,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Install dependencies
         run: npm install
       - name: Report dependency audit findings

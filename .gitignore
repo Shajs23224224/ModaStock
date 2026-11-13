@@ -1,0 +1,23 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Python
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+
+# Node
+**/node_modules/
+**/dist/
+**/coverage/
+
+# Local database backups
+*.dump
+*.backup
+*.sql.gz

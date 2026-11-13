@@ -1,0 +1,45 @@
+name: Container CI
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "compose.yaml"
+      - ".dockerignore"
+      - ".env.example"
+      - ".github/workflows/container-ci.yml"
+  push:
+    branches:
+      - "feature/fase-10-despliegue-documentacion"
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "compose.yaml"
+      - ".dockerignore"
+      - ".env.example"
+      - ".github/workflows/container-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare non-secret validation environment
+        run: cp .env.example .env
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Build application images
+        run: docker compose --profile tools build --pull
+      - name: Start ephemeral PostgreSQL
+        run: docker compose up -d db
+      - name: Validate Alembic upgrade
+        run: docker compose run --rm migrate
+      - name: Validate Alembic downgrade
+        run: docker compose run --rm migrate alembic downgrade base
+      - name: Stop and remove ephemeral stack
+        if: always()
+        run: docker compose down -v

@@ -9,6 +9,9 @@ on:
       - "feature/fase-5-seguridad-autenticacion"
       - "feature/fase-7-modulos-inventario"
       - "feature/fase-8-integracion-tecnologica"
+      - "feature/fase-9-pruebas-aseguramiento-calidad"
+      - "feature/fase-10-despliegue-documentacion"
+      - "main"
     paths:
       - "backend/**"
       - ".github/workflows/backend-ci.yml"
