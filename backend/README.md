@@ -17,9 +17,17 @@ Configura `DATABASE_URL`, `CORS_ORIGINS` y reemplaza `JWT_SECRET_KEY` por un sec
 alembic upgrade head
 python -m app.seed_roles
 ```
-Revisa las migraciones y ejecútalas primero en una base de pruebas. No hay migración aplicada ni base desplegada por este repositorio.
+Revisa las migraciones y ejecútalas primero en una base de pruebas.
 
-El registro público asigna únicamente STAFF. Para habilitar el primer administrador, realiza una asignación administrativa controlada directamente en PostgreSQL después de inicializar los roles; nunca expongas ese procedimiento como endpoint público.
+El registro público asigna únicamente STAFF. Para habilitar el primer administrador, realiza una asignación administrativa controlada directamente en PostgreSQL; nunca expongas ese procedimiento como endpoint público.
+
+## Cuenta y catálogo de demostración
+El arranque del contenedor ejecuta `app.seed_demo` después de las migraciones y del seed de roles. Para habilitarlo, configura estas variables en el entorno del servicio:
+- `DEMO_ACCOUNT_EMAIL`: por defecto `demo@modastock.app`.
+- `DEMO_ACCOUNT_NAME`: por defecto `Cuenta de demostración`.
+- `DEMO_ACCOUNT_PASSWORD`: obligatorio, mínimo 12 caracteres; guárdalo como variable secreta y no lo incluyas en el repositorio.
+
+El proceso es idempotente: crea o habilita únicamente la cuenta indicada, le asigna el rol MANAGER y carga cuatro productos de ropa, cinco variantes y existencias iniciales con movimientos de entrada trazables. Si `DEMO_ACCOUNT_PASSWORD` no está configurada, omite la carga demo. El registro público continúa asignando STAFF.
 
 ## Ejecución y pruebas
 ```bash
@@ -53,4 +61,4 @@ Cada movimiento debe incluir una cabecera `Idempotency-Key` única. Reutilizar l
 ## Seguridad y límites
 Contraseñas: Argon2. Tokens: JWT HS256, duración configurable mediante `ACCESS_TOKEN_EXPIRE_MINUTES`. Antes de producción se requiere HTTPS, gestión y rotación de secretos, limitación de intentos de login y política de respaldo.
 
-SQLite solo sirve para pruebas rápidas y no valida bloqueos ni concurrencia PostgreSQL. La serialización con SELECT FOR UPDATE debe validarse con PostgreSQL de pruebas. No se ejecutaron migraciones ni se modificó una base remota en esta fase. No se implementan refresh tokens ni revocación inmediata en este MVP.
+SQLite solo sirve para pruebas rápidas y no valida bloqueos ni concurrencia PostgreSQL. La serialización con SELECT FOR UPDATE debe validarse con PostgreSQL de pruebas. No se implementan refresh tokens ni revocación inmediata en este MVP.
