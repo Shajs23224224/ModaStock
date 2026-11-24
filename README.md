@@ -46,3 +46,7 @@ Consulta `frontend/README.md` para instalar y ejecutar la interfaz.
 8. Integración tecnológica.
 9. Pruebas y aseguramiento de calidad.
 10. Despliegue y documentación.
+
+## Gestión de requisitos
+
+La gestión y validación de requisitos mediante GitHub Issues y GitHub Projects se documenta en [docs/fase-1/04-gestion-de-requisitos-github.md](docs/fase-1/04-gestion-de-requisitos-github.md). El catálogo inicial se encuentra en [docs/fase-1/02-requisitos.md](docs/fase-1/02-requisitos.md).
