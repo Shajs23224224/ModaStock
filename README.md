@@ -50,3 +50,7 @@ Consulta `frontend/README.md` para instalar y ejecutar la interfaz.
 ## Gestión de requisitos
 
 La gestión y validación de requisitos mediante GitHub Issues y GitHub Projects se documenta en [docs/fase-1/04-gestion-de-requisitos-github.md](docs/fase-1/04-gestion-de-requisitos-github.md). El catálogo inicial se encuentra en [docs/fase-1/02-requisitos.md](docs/fase-1/02-requisitos.md).
+
+## Evidencia SENA — Gestión de requisitos
+
+Consulta la [evidencia GA1-220501092-AA5-EV01](docs/fase-1/05-evidencia-GA1-220501092-AA5-EV01.md), que documenta la selección de GitHub y el inventario de Issues funcionales y no funcionales.
