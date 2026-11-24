@@ -131,3 +131,14 @@ Para la entrega de la evidencia SENA, conservar capturas de:
 6. Registro de una revisión o ajuste realizado durante la validación.
 
 La existencia de los Issues demuestra el registro y la organización inicial de los requisitos. La validación con el cliente o usuario, así como el funcionamiento del tablero, deben demostrarse con sus respectivas evidencias.
+
+## 9. Actividades de gestión registradas
+
+Además de los requisitos individuales, se registraron dos actividades para controlar los pasos de validación y configuración de la herramienta:
+
+| Actividad | Issue | Estado |
+|---|---|---|
+| Validar el catálogo con un usuario representativo y registrar hallazgos | [#50](https://github.com/Shajs23224224/ModaStock/issues/50) | Abierto / pendiente |
+| Crear el tablero GitHub Projects y añadir los 35 requisitos | [#51](https://github.com/Shajs23224224/ModaStock/issues/51) | Abierto / pendiente |
+
+Estas actividades no se contabilizan como requisitos funcionales o no funcionales; son tareas de gestión necesarias para completar la evidencia y cerrar la validación.
